@@ -1,0 +1,173 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Home Assistant Add-on: Forgejo
+# Runs Forgejo
+# ==============================================================================
+
+declare admin_email
+declare admin_password
+declare admin_user
+declare app_name
+declare disable_registration
+declare domain
+declare internal_token
+declare lfs_start_server
+declare offline_mode
+declare require_signin
+declare root_url
+declare secret_key
+declare ssh_domain
+
+# Wait for other services
+bashio::log.info "Starting Forgejo..."
+
+# Get configuration
+admin_email=$(bashio::config 'admin_email')
+admin_password=$(bashio::config 'admin_password')
+admin_user=$(bashio::config 'admin_user')
+app_name=$(bashio::config 'app_name')
+disable_registration=$(bashio::config 'disable_registration')
+domain=$(bashio::config 'domain')
+internal_token=$(bashio::config 'internal_token')
+lfs_start_server=$(bashio::config 'lfs_start_server')
+offline_mode=$(bashio::config 'offline_mode')
+require_signin=$(bashio::config 'require_signin')
+root_url=$(bashio::config 'root_url')
+secret_key=$(bashio::config 'secret_key')
+ssh_domain=$(bashio::config 'ssh_domain')
+
+# Set defaults if empty
+if bashio::var.is_empty "${root_url}"; then
+    root_url="http://${domain}/"
+fi
+
+if bashio::var.is_empty "${ssh_domain}"; then
+    ssh_domain="${domain}"
+fi
+
+# Create data directory
+mkdir -p /data/git
+mkdir -p /data/gitea
+
+# Set environment variables
+export USER_UID=0
+export USER_GID=0
+export GITEA_WORK_DIR=/data
+export GITEA_CUSTOM=/data/gitea
+
+# Generate secrets if empty
+if bashio::var.is_empty "${secret_key}"; then
+    secret_key=$(openssl rand -base64 32)
+    bashio::log.info "Generated new SECRET_KEY"
+fi
+
+if bashio::var.is_empty "${internal_token}"; then
+    internal_token=$(openssl rand -base64 32)
+    bashio::log.info "Generated new INTERNAL_TOKEN"
+fi
+
+# Create app.ini if it doesn't exist
+if [[ ! -f /data/gitea/conf/app.ini ]]; then
+    bashio::log.info "Creating initial configuration..."
+    
+    mkdir -p /data/gitea/conf
+    
+    cat > /data/gitea/conf/app.ini << EOF
+APP_NAME = ${app_name}
+RUN_USER = root
+RUN_MODE = prod
+
+[security]
+INSTALL_LOCK   = true
+SECRET_KEY     = ${secret_key}
+INTERNAL_TOKEN = ${internal_token}
+
+[database]
+PATH     = /data/gitea/gitea.db
+DB_TYPE  = sqlite3
+HOST     = localhost:3306
+NAME     = gitea
+USER     = root
+PASSWD   = 
+SSL_MODE = disable
+CHARSET  = utf8
+
+[repository]
+ROOT = /data/git/repositories
+
+[server]
+PROTOCOL         = http
+DOMAIN           = ${domain}
+HTTP_ADDR        = 0.0.0.0
+HTTP_PORT        = 3000
+ROOT_URL         = ${root_url}
+DISABLE_SSH      = false
+START_SSH_SERVER = true
+SSH_DOMAIN       = ${ssh_domain}
+SSH_PORT         = 2222
+SSH_LISTEN_PORT  = 2222
+OFFLINE_MODE     = ${offline_mode}
+
+[mailer]
+ENABLED = false
+
+[service]
+REGISTER_EMAIL_CONFIRM            = false
+ENABLE_NOTIFY_MAIL                = false
+DISABLE_REGISTRATION              = ${disable_registration}
+ALLOW_ONLY_EXTERNAL_REGISTRATION  = false
+ENABLE_CAPTCHA                    = false
+REQUIRE_SIGNIN_VIEW               = ${require_signin}
+DEFAULT_KEEP_EMAIL_PRIVATE        = false
+DEFAULT_ALLOW_CREATE_ORGANIZATION = true
+DEFAULT_ENABLE_TIMETRACKING       = true
+NO_REPLY_ADDRESS                  = noreply.${domain}
+
+[picture]
+DISABLE_GRAVATAR        = false
+ENABLE_FEDERATED_AVATAR = true
+
+[openid]
+ENABLE_OPENID_SIGNIN = true
+ENABLE_OPENID_SIGNUP = true
+
+[session]
+PROVIDER = file
+
+[log]
+MODE      = console
+LEVEL     = info
+ROOT_PATH = /data/gitea/log
+
+[git]
+MAX_GIT_DIFF_LINES = 1000
+MAX_GIT_DIFF_LINE_CHARACTERS = 5000
+MAX_GIT_DIFF_FILES = 100
+
+[other]
+SHOW_FOOTER_BRANDING = false
+SHOW_FOOTER_VERSION = true
+
+[lfs]
+START_SERVER = ${lfs_start_server}
+CONTENT_PATH = /data/git/lfs
+EOF
+
+    # Set proper permissions
+    chown -R root:root /data/gitea
+    chown -R root:root /data/git
+fi
+
+# Log configuration
+bashio::log.info "Domain: ${domain}"
+bashio::log.info "Root URL: ${root_url}"
+bashio::log.info "SSH Domain: ${ssh_domain}"
+bashio::log.info "Admin User: ${admin_user}"
+bashio::log.info "Registration disabled: ${disable_registration}"
+bashio::log.info "Require sign-in: ${require_signin}"
+
+# Start Forgejo
+bashio::log.info "Starting Forgejo server..."
+cd /data || bashio::exit.nok "Could not change directory to /data"
+
+exec /usr/local/bin/forgejo web --config /data/gitea/conf/app.ini
