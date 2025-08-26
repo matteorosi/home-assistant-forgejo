@@ -1,91 +1,136 @@
-# Home Assistant Community Add-on: Example
+# Home Assistant Add-on: Forgejo
 
-[![GitHub Release][releases-shield]][releases]
-![Project Stage][project-stage-shield]
-[![License][license-shield]](LICENSE.md)
+![Supports aarch64 Architecture][aarch64-shield] ![Supports amd64 Architecture][amd64-shield] ![Supports armhf Architecture][armhf-shield] ![Supports armv7 Architecture][armv7-shield] ![Supports i386 Architecture][i386-shield]
 
-![Supports armhf Architecture][armhf-shield]
-![Supports armv7 Architecture][armv7-shield]
-![Supports aarch64 Architecture][aarch64-shield]
-![Supports amd64 Architecture][amd64-shield]
-![Supports i386 Architecture][i386-shield]
-
-[![Github Actions][github-actions-shield]][github-actions]
-![Project Maintenance][maintenance-shield]
-[![GitHub Activity][commits-shield]][commits]
-
-[![Discord][discord-shield]][discord]
-[![Community Forum][forum-shield]][forum]
-
-[![Sponsor Frenck via GitHub Sponsors][github-sponsors-shield]][github-sponsors]
-
-[![Support Frenck on Patreon][patreon-shield]][patreon]
-
-Example add-on by Community Home Assistant add-ons.
+Forgejo is a self-hosted lightweight software forge. Easy to install and run, it is a community fork of Gitea.
 
 ## About
 
-This is an example add-on for Home Assistant. When started, it displays a
-random quote every 5 seconds.
+Forgejo is a self-hosted Git service with a web interface, similar to GitHub, GitLab, or Gitea. This add-on allows you to run Forgejo directly on your Home Assistant instance.
 
-It shows off several features and structures like:
+## Features
 
-- Full blown GitHub repository.
-- General Dockerfile structure and setup.
-- The use of the `config.yaml` and `build.yaml` files.
-- General structure on how to use S6 overlay with services.
-- Basic usage of Bashio.
-- Continuous integration and deployment using GitHub Actions.
-- Deployment to the GitHub Container registry.
-- Small use of the Bash function library in our base images.
-- The use of Docker label schema.
+- 🔒 **Secure**: Built-in user authentication and authorization
+- 🌐 **Web Interface**: Modern and intuitive web UI
+- 📝 **Git Repository Management**: Create, manage, and collaborate on Git repositories
+- 🔄 **Built-in Git Server**: SSH and HTTP(S) access to your repositories
+- 🎯 **Issue Tracking**: Built-in issue tracker and project management
+- 🔗 **Webhooks**: Integrate with other services and CI/CD pipelines
+- 📊 **Organizations**: Support for organizations and teams
 
-[:books: Read the full add-on documentation][docs]
+## Installation
+
+1. Add this repository to your Home Assistant Add-on Store:
+   ```
+   https://github.com/yourusername/forgejo-addon
+   ```
+
+2. Install the "Forgejo" add-on.
+
+3. Configure the add-on (see configuration section below).
+
+4. Start the add-on.
+
+5. Access Forgejo at `http://your-home-assistant:3000`
+
+## Configuration
+
+Add-on configuration:
+
+```yaml
+domain: git.example.com
+app_name: "My Forgejo"
+admin_user: admin
+admin_email: admin@example.com
+admin_password: "your-secure-password"
+root_url: "https://git.example.com"
+ssh_domain: git.example.com
+disable_registration: false
+require_signin: false
+secret_key: ""
+internal_token: ""
+lfs_start_server: true
+offline_mode: false
+```
+
+### Option: `domain` (required)
+
+The domain name for your Forgejo instance.
+
+### Option: `app_name`
+
+The name of your Forgejo instance (default: "Forgejo").
+
+### Option: `admin_user`
+
+The username for the initial admin user (default: "admin").
+
+### Option: `admin_email`
+
+The email address for the initial admin user.
+
+### Option: `admin_password`
+
+The password for the initial admin user. Leave empty to use the default password.
+
+### Option: `root_url`
+
+The full URL of your Forgejo instance. If empty, it will be generated automatically.
+
+### Option: `ssh_domain`
+
+The domain for SSH access. If empty, it will use the same as `domain`.
+
+### Option: `disable_registration`
+
+Whether to disable user registration (default: false).
+
+### Option: `require_signin`
+
+Whether to require sign-in to view repositories (default: false).
+
+### Option: `secret_key`
+
+Secret key for encryption. Leave empty to auto-generate.
+
+### Option: `internal_token`
+
+Internal token for API access. Leave empty to auto-generate.
+
+### Option: `lfs_start_server`
+
+Whether to enable Git LFS support (default: true).
+
+### Option: `offline_mode`
+
+Whether to run in offline mode (default: false).
+
+## Ports
+
+The add-on uses the following ports:
+
+- `3000/tcp`: Web interface
+- `2222/tcp`: SSH Git access
+
+## Data Persistence
+
+Your Git repositories and configuration are stored in the add-on's data directory and will persist across updates and restarts.
 
 ## Support
 
-Got questions?
+For support and questions, please visit:
+- [Forgejo Documentation](https://forgejo.org/docs/)
+- [Home Assistant Community](https://community.home-assistant.io/)
 
-You have several options to get them answered:
+## Changelog & Releases
 
-- The [Home Assistant Community Add-ons Discord chat server][discord] for add-on
-  support and feature requests.
-- The [Home Assistant Discord chat server][discord-ha] for general Home
-  Assistant discussions and questions.
-- The Home Assistant [Community Forum][forum].
-- Join the [Reddit subreddit][reddit] in [/r/homeassistant][reddit]
-
-You could also [open an issue here][issue] GitHub.
-
-## Contributing
-
-This is an active open-source project. We are always open to people who want to
-use the code or contribute to it.
-
-We have set up a separate document containing our
-[contribution guidelines](.github/CONTRIBUTING.md).
-
-Thank you for being involved! :heart_eyes:
-
-## Authors & contributors
-
-The original setup of this repository is by [Franck Nijhof][frenck].
-
-For a full list of all authors and contributors,
-check [the contributor's page][contributors].
-
-## We have got some Home Assistant add-ons for you
-
-Want some more functionality to your Home Assistant instance?
-
-We have created multiple add-ons for Home Assistant. For a full list, check out
-our [GitHub Repository][repository].
+This repository keeps a change log using [GitHub's releases][releases] functionality.
 
 ## License
 
 MIT License
 
-Copyright (c) 2017-2025 Franck Nijhof
+Copyright (c) 2024
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -107,30 +152,7 @@ SOFTWARE.
 
 [aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
 [amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
-[armhf-shield]: https://img.shields.io/badge/armhf-no-red.svg
+[armhf-shield]: https://img.shields.io/badge/armhf-yes-green.svg
 [armv7-shield]: https://img.shields.io/badge/armv7-yes-green.svg
-[commits-shield]: https://img.shields.io/github/commit-activity/y/hassio-addons/addon-example.svg
-[commits]: https://github.com/hassio-addons/addon-example/commits/main
-[contributors]: https://github.com/hassio-addons/addon-example/graphs/contributors
-[discord-ha]: https://discord.gg/c5DvZ4e
-[discord-shield]: https://img.shields.io/discord/478094546522079232.svg
-[discord]: https://discord.me/hassioaddons
-[docs]: https://github.com/hassio-addons/addon-example/blob/main/example/DOCS.md
-[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg
-[forum]: https://community.home-assistant.io/t/repository-community-hass-io-add-ons/24705?u=frenck
-[frenck]: https://github.com/frenck
-[github-actions-shield]: https://github.com/hassio-addons/addon-example/workflows/CI/badge.svg
-[github-actions]: https://github.com/hassio-addons/addon-example/actions
-[github-sponsors-shield]: https://frenck.dev/wp-content/uploads/2019/12/github_sponsor.png
-[github-sponsors]: https://github.com/sponsors/frenck
-[i386-shield]: https://img.shields.io/badge/i386-no-red.svg
-[issue]: https://github.com/hassio-addons/addon-example/issues
-[license-shield]: https://img.shields.io/github/license/hassio-addons/addon-example.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2025.svg
-[patreon-shield]: https://frenck.dev/wp-content/uploads/2019/12/patreon.png
-[patreon]: https://www.patreon.com/frenck
-[project-stage-shield]: https://img.shields.io/badge/project%20stage-production%20ready-brightgreen.svg
-[reddit]: https://reddit.com/r/homeassistant
-[releases-shield]: https://img.shields.io/github/release/hassio-addons/addon-example.svg
-[releases]: https://github.com/hassio-addons/addon-example/releases
-[repository]: https://github.com/hassio-addons/repository
+[i386-shield]: https://img.shields.io/badge/i386-yes-green.svg
+[releases]: https://github.com/yourusername/forgejo-addon/releases
