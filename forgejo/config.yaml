@@ -1,0 +1,54 @@
+name: "Forgejo"
+version: "12.0.1"
+slug: "forgejo"
+description: "Self-hosted Git service powered by Forgejo"
+url: "https://forgejo.org/"
+codenotary: "notary@home-assistant.io"
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+startup: services
+boot: auto
+init: false
+map:
+  - share:rw
+  - ssl
+ports:
+  3000/tcp: 3000
+  2222/tcp: 2222
+ports_description:
+  3000/tcp: "Web interface"
+  2222/tcp: "SSH Git access"
+webui: "http://[HOST]:[PORT:3000]"
+options:
+  domain: "git.example.com"
+  app_name: "Forgejo"
+  admin_user: "admin"
+  admin_email: "admin@example.com"
+  admin_password: ""
+  root_url: ""
+  ssh_domain: ""
+  disable_registration: false
+  require_signin: false
+  secret_key: ""
+  internal_token: ""
+  lfs_start_server: true
+  offline_mode: false
+schema:
+  domain: "str"
+  app_name: "str"
+  admin_user: "str"
+  admin_email: "email"
+  admin_password: "password?"
+  root_url: "url?"
+  ssh_domain: "str?"
+  disable_registration: "bool"
+  require_signin: "bool" 
+  secret_key: "password?"
+  internal_token: "password?"
+  lfs_start_server: "bool"
+  offline_mode: "bool"
+image: "codeberg.org/forgejo/forgejo:{version}"
